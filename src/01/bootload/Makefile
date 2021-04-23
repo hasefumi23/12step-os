@@ -14,7 +14,8 @@ RANLIB = $(BINDIR)/$(ADDNAME)ranlib
 STRIP = $(BINDIR)/$(ADDNAME)strip
 
 #H8WRITE = ../../tools/h8write/kz_h8write
-H8WRITE = ..\..\..\PackageFiles\bin\kz_h8write.exe
+#H8WRITE = ..\..\..\PackageFiles\bin\kz_h8write.exe
+H8WRITE = ../../../PackageFiles/bin/kz_h8write.exe
 
 # FreeBSD-4.x:/dev/cuaaX, FreeBSD-6.x:/dev/cuadX, FreeBSD(USB):/dev/cuaUx
 # Linux:/dev/ttySx, Linux(USB):/dev/ttyUSBx, Windows:comX
@@ -22,7 +23,7 @@ H8WRITE = ..\..\..\PackageFiles\bin\kz_h8write.exe
 H8WRITE_SERDEV = COM4 # シリアル接続
 
 OBJS = vector.o startup.o main.o
-OBJS += lib.o serial.o
+OBJS += lib.o serial.o xmodem.o
 
 # 生成する実行形式のファイル名
 TARGET = kzload

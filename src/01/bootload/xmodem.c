@@ -53,7 +53,7 @@ static int xmodem_read_block(unsigned char block_number, char *buf) {
     return -1;
   }
 
-  return 1;
+  return i;
 }
 
 long xmodem_recv(char *buf) {
@@ -65,7 +65,9 @@ long xmodem_recv(char *buf) {
     if (!receiving) {
       xmodem_wait(); /* 受信開始されるまで送信要求を出す */
     }
+
     c = serial_recv_byte(SERIAL_DEFAULT_DEVICE);
+
     if (c == XMODEM_EOT) {
       // 1文字の受信 
       serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_ACK);

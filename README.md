@@ -48,4 +48,6 @@
 ```bash
 # xmode を cme.exe から実行する時のコマンド
 kz_xmodem.exe ..\..\01\bootload\kzload.elf COM4
+
+kz_xmodem.exe ..\..\01\os\kozos COM4
 ```

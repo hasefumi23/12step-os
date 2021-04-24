@@ -50,7 +50,7 @@ _intr_syscall:
 
         .global _intr_serintr
 #       .type   _intr_serintr,@function
-_intr_seriintr:
+_intr_serintr:
         mov.l   er6,@-er7
         mov.l   er5,@-er7
         mov.l   er4,@-er7

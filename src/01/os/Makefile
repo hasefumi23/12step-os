@@ -13,7 +13,7 @@ OBJDUMP = $(BINDIR)/$(ADDNAME)objdump
 RANLIB = $(BINDIR)/$(ADDNAME)ranlib
 STRIP = $(BINDIR)/$(ADDNAME)strip
 
-OBJS = startup.o main.o
+OBJS = startup.o main.o interrupt.o
 OBJS += lib.o serial.o
 
 # 生成する実行形式のファイル名
@@ -30,6 +30,7 @@ LFLAGS = -static -T ld.scr -L.
 
 .SUFFIXES: .c .o
 .SUFFIXES: .s .o
+.SUFFIXES: .S .o
 
 all : $(TARGET)
 
@@ -45,6 +46,9 @@ $(TARGET) : $(OBJS)
 
 # アセンブラファイルのアセンブルルール
 .s.o : $<
+			$(CC) -c $(CFLAGS) $<
+
+.S.o : $<
 			$(CC) -c $(CFLAGS) $<
 
 clean :

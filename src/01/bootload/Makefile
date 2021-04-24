@@ -22,7 +22,7 @@ H8WRITE = ../../../PackageFiles/bin/kz_h8write.exe
 # H8WRITE_SERDEV = /dev/ttyS3 # シリアル接続
 H8WRITE_SERDEV = COM4 # シリアル接続
 
-OBJS = vector.o startup.o main.o
+OBJS = vector.o startup.o intr.o main.o interrupt.o
 OBJS += lib.o serial.o xmodem.o elf.o
 
 # 生成する実行形式のファイル名
@@ -39,6 +39,7 @@ LFLAGS = -static -T ld.scr -L.
 
 .SUFFIXES: .c .o
 .SUFFIXES: .s .o
+.SUFFIXES: .S .o
 
 all : $(TARGET)
 
@@ -54,6 +55,9 @@ $(TARGET) : $(OBJS)
 
 # アセンブラファイルのアセンブルルール
 .s.o : $<
+			$(CC) -c $(CFLAGS) $<
+
+.S.o : $<
 			$(CC) -c $(CFLAGS) $<
 
 # モトローラSレコードフォーマットへの変換ルール

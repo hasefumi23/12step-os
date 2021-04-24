@@ -23,7 +23,7 @@ H8WRITE = ../../../PackageFiles/bin/kz_h8write.exe
 H8WRITE_SERDEV = COM4 # シリアル接続
 
 OBJS = vector.o startup.o main.o
-OBJS += lib.o serial.o xmodem.o
+OBJS += lib.o serial.o xmodem.o elf.o
 
 # 生成する実行形式のファイル名
 TARGET = kzload

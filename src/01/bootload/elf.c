@@ -65,10 +65,10 @@ static int elf_load_program(struct elf_header *header) {
     struct elf_program_header *phdr;
 
     for (i = 0; i < header->program_header_num; i++) {
-        /* プログラムヘッダを取得 */
-        phdr = (struct elf_program_header *)((char *)header +
-                                             header->program_header_offset +
-                                             header->program_header_size * i);
+      /* プログラムヘッダを取得 */
+      phdr = (struct elf_program_header *)((char *)header +
+                                            header->program_header_offset +
+                                            header->program_header_size * i);
 
       if (phdr->type != 1) continue; // ロード可能なセグメントか？
 
@@ -79,7 +79,7 @@ static int elf_load_program(struct elf_header *header) {
       putxval(phdr->file_size, 5); puts(" ");
       putxval(phdr->memory_size, 5); puts(" ");
       putxval(phdr->flags, 2); puts(" ");
-      putxval(phdr->align, 2); puts(" ");
+      putxval(phdr->align, 2); puts("\n");
     }
 
     return 0;

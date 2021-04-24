@@ -42,3 +42,10 @@
     - スタートアップ
     - 割り込みの入り口と出口
     - スレッドのディスパッチ
+
+## Commands
+
+```bash
+# xmode を cme.exe から実行する時のコマンド
+kz_xmodem.exe ..\..\01\bootload\kzload.elf COM4
+```

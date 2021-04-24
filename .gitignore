@@ -3,6 +3,7 @@ gcc-3.4.6/
 PackageFiles/
 src/tools/
 @LongLink
+src/01/os/kozos
 
 *.o
 *.elf

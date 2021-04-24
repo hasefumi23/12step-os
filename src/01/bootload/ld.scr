@@ -1,0 +1,55 @@
+/* OUTPUT_FORMAT("elf32-h8300") */
+OUTPUT_ARCH(h8300h)
+ENTRY("_start")
+
+MEMORY
+{
+  romall(rx) : o = 0x000000, l = 0x080000 /* 512 KB */
+  vectors(r) : o = 0x000000, l = 0x000100 /* top of ROM KB */
+  rom(r)     : o = 0x000100, l = 0x07ff00
+
+  ramall(rwx) : o = 0xffbf20, l = 0x004000 /* 16 KB */
+  data(rwx)   : o = 0xfffc20, l = 0x000300 /* 16 KB */
+  stack(rw)   : o = 0xffff00, l = 0x000000 /* end of RAM */
+}
+
+SECTIONS
+{
+    .vectors : {
+      vector.o(.data)
+    } > vectors
+
+  .text : {
+    _text_start = . ; /* text セクションの先頭を指すシンボルを配置 */
+    *(.text)
+    _etext = . ; /* .text セクションの終端を指すシンボルを配置 */
+  } > rom /* .text セクションは ROM に配置する */
+
+  .rodata : {
+    _rodata_start = . ;
+    *(.strings)
+    *(.rodata)
+    *(.rodata.*)
+    _erodata = . ;
+  } > rom /* .rodata セクションは ROM に配置する */
+
+  .data : {
+    _data_start = . ;
+    *(.data)
+    _edata = . ;
+  } > data AT> rom /* .data セクションの「VA != PA」対応 */
+
+  .bss : {
+    _bss_start = . ;
+    *(.bss)
+    *(COMMON)
+    _ebss = . ;
+  } > data AT> rom /* .bss セクションの「VA != PA」対応 */
+
+  . = ALIGN(4); /* 4バイトアラインメント */
+  _end = . ; /* セクションの終端に _end シンボルを配置する */
+
+  .stack : {
+    _stack = .; /* スタックを指すシンボルを配置する */
+  } > stack
+}

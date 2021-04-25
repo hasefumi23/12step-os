@@ -7,7 +7,9 @@ MEMORY
   ramall(rwx) : o = 0xffbf20, l = 0x004000 /* 16 KB */
   softvec(rw) : o = 0xffbf20, l = 0x000040 /* top of RAM(ソフトウェア割込みベクタの領域) */
   ram(rwx)    : o = 0xffc020, l = 0x003f00
-  stack(rw)   : o = 0xffff00, l = 0x000000 /* end of RAM */
+  userstack(rw)   : o = 0xfff400, l = 0x000000 /* ユーザスタック */
+  bootstack(rw)   : o = 0xffff00, l = 0x000000 /* ブートスタック */
+  intrstack(rw)   : o = 0xffff00, l = 0x000000 /* 割込みスタック */
 }
 
 SECTIONS
@@ -46,7 +48,15 @@ SECTIONS
   . = ALIGN(4); /* 4バイトアラインメント */
   _end = . ; /* セクションの終端に _end シンボルを配置する */
 
-  .stack : {
-    _stack = .; /* スタックを指すシンボルを配置する */
-  } > stack
+  .userstack : {
+    _userstack = .;
+  } > userstack
+
+  .bootstack : {
+    _bootstack = .;
+  } > bootstack
+
+  .intrstack : {
+    _intrstack = .;
+  } > intrstack
 }

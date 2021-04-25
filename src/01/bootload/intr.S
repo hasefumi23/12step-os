@@ -14,8 +14,13 @@ _intr_softerr:
         mov.l   er1,@-er7
         mov.l   er0,@-er7
         mov.l   er7,er1 # 第二引数にスタックポインタを設定
+        mov.l   #_intrstack,sp # 割込みスタックを利用する
+        mov.l   er1,@-er7 # 旧スタックポインタの値を割込みスタックに保存する
         mov.w   #SOFTVEC_TYPE_SOFTERR,r0 # 第一引数に intr.h の「SOFTVEC_TYPE_SOFTERR」を設定
         jsr     @_interrupt # interrupt() の呼び出し
+        # 旧スタックポインタの値を割込みスタックから復旧する
+        mov.l   @er7+,er1
+        mov.l   er1,er7
         # スタックから汎用レジスタの値を復旧する
         mov.l   @er7+,er0
         mov.l   @er7+,er1

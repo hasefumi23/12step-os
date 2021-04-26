@@ -48,6 +48,10 @@ SECTIONS
   . = ALIGN(4); /* 4バイトアラインメント */
   _end = . ; /* セクションの終端に _end シンボルを配置する */
 
+  .freeare : {
+    _freearea = . ;
+  } > ram
+
   .userstack : {
     _userstack = .;
   } > userstack

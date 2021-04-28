@@ -374,8 +374,8 @@ static kz_thread_id_t thread_recv(kz_msgbox_id_t id, int *sizep, char **pp) {
   return current->syscall.param->un.recv.ret;
 }
 
-/* 割込みハンドラの登録 */
-static int setintr(softvec_type_t type, kz_handler_t handler) {
+/* システムコールの処理(kz_setintr(): 割込みハンドラの登録) */
+static int thread_setintr(softvec_type_t type, kz_handler_t handler) {
   static void thread_intr(softvec_type_t type, unsigned long sp);
 
   /*
@@ -386,6 +386,7 @@ static int setintr(softvec_type_t type, kz_handler_t handler) {
 
   handlers[type] = handler;
 
+  putcurrent();
   return 0;
 }
 
@@ -430,6 +431,9 @@ static void call_functions(kz_syscall_type_t type, kz_syscall_param_t *p) {
     case KZ_SYSCALL_TYPE_RECV:
       p->un.recv.ret = thread_recv(p->un.recv.id, p->un.recv.sizep, p->un.recv.pp);
       break;
+    case KZ_SYSCALL_TYPE_SETINTR:
+      p->un.setintr.ret = thread_setintr(p->un.setintr.type, p->un.setintr.handler);
+      break;
     default:
       break;
   }
@@ -445,6 +449,21 @@ static void syscall_proc(kz_syscall_type_t type, kz_syscall_param_t *p) {
   */
   getcurrent(); // カレントスレッドをレディーキューから外す
   call_functions(type, p); // システムコールの処理関数を呼び出す
+}
+
+/* サービスコールの処理 */
+static void srvcall_proc(kz_syscall_type_t type, kz_syscall_param_t *p) {
+  /*
+  * システムコールとサービスコールの処理関数の内部で
+  * システムコールの実行したスレッドIDを得るために current を
+  * 参照している部分があり(たとえば thread_send() など)、
+  * current が残っていると誤動作するため NULL に設定する。
+  * サービスコールは thread_intrvec() 内部の割込みハンドラ呼び出しの
+  * 延長で呼ばれているはずなので、呼び出し後に thread_intrvec() で
+  * スケジューリング処理が行われ、 curret は再設定される
+  */
+  current = NULL;
+  call_functions(type, p);
 }
 
 /* スレッドのスケジューリング */
@@ -488,6 +507,8 @@ static void thread_intr(softvec_type_t type, unsigned long sp) {
   * SOFTVEC_TYPE_SYSCALL, SOFTVEC_TYPE_SOFTERR の場合は
   * syscall_intr(), softerr_intr() がハンドラに登録されているので、
   * それらが実行される
+  * それ以外の場合は、kz_setintr() によってユーザ登録されたハンドラが
+  * 実行される
   */
   if (handlers[type]) {
     handlers[type]();
@@ -518,8 +539,8 @@ void kz_start(kz_func_t func, char *name, int priority, int stacksize, int argc,
   memset(msgboxes, 0, sizeof(msgboxes));
 
   /* 割込みハンドラの登録 */
-  setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr); // システムコール
-  setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr); // ダウン要因発生
+  thread_setintr(SOFTVEC_TYPE_SYSCALL, syscall_intr); // システムコール
+  thread_setintr(SOFTVEC_TYPE_SOFTERR, softerr_intr); // ダウン要因発生
 
   /* システムコール発行不可なので直接呼び出してスレッド作成する */
   current = (kz_thread *)thread_run(func, name, priority, stacksize, argc, argv);
@@ -540,4 +561,9 @@ void kz_syscall(kz_syscall_type_t type, kz_syscall_param_t *param) {
   current->syscall.param = param;
   // トラップ割込み発行
   asm volatile ("trapa #0");
+}
+
+/* サービスコール呼び出し用ライブラリ関数 */
+void kz_srvcall(kz_syscall_type_t type, kz_syscall_param_t *param) {
+  srvcall_proc(type, param);
 }
